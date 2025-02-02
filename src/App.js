@@ -9,12 +9,12 @@ import {
   CardContent,
   List,
   ListItem,
-  ListItemText,
   Chip,
   Box,
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -61,9 +61,15 @@ function App() {
   const [file, setFile] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setAnalysisResult(null); // Clear previous results
+      setError(null); // Clear previous errors
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -71,6 +77,8 @@ function App() {
     if (!file) return;
 
     setUploading(true);
+    setError(null);
+    setAnalysisResult(null);
 
     const formData = new FormData();
     formData.append("htmlFile", file);
@@ -86,6 +94,7 @@ function App() {
       setAnalysisResult(response.data);
     } catch (error) {
       console.error("Error uploading file:", error);
+      setError("Failed to analyze the file. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -99,6 +108,7 @@ function App() {
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Upload an HTML file to analyze its accessibility and get suggested fixes.
       </Typography>
+
       <form onSubmit={handleSubmit}>
         <label htmlFor="file-upload">
           <Input
@@ -121,7 +131,21 @@ function App() {
           Analyze
         </Button>
       </form>
+
+      {file && (
+        <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
+          Uploaded file: <strong>{file.name}</strong>
+        </Typography>
+      )}
+
       {uploading && <LinearProgress sx={{ mt: 2 }} />}
+
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       {analysisResult && (
         <Card sx={{ mt: 4, p: 3 }}>
           <CardContent>
