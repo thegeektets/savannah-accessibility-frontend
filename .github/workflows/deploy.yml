@@ -27,7 +27,7 @@ jobs:
             cd /home/griffinmuteti64/web || mkdir -p /home/griffinmuteti64/web && cd /home/griffinmuteti64/web
             
             # Pull latest changes from the GitHub repository
-            git pull origin master || git clone git@github.com:griffinmuteti64/react-app.git .
+            git pull origin master || git clone git@github.com:thegeektets/savannah-accessibility-frontend.git .
             
             # Install required dependencies for React app
             npm install
