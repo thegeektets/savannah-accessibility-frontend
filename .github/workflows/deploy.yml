@@ -3,8 +3,7 @@ name: Deploy React App to Google Cloud VM
 on:
   push:
     branches:
-      - master  # Trigger deployment on push to the master branch
-
+      - master  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,37 +11,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-    
-      - name: Debugging SSH Setup
-        run: |
-          # Create the .ssh directory if it doesn't exist
-          mkdir -p ~/.ssh
-          
-          # Echo the secret SSH key to verify it's being passed correctly (for debugging only)
-          echo "Debugging SSH Key:"
-          echo "${{ secrets.VM_SSH_KEY }}"
-          
-          # Echo the VM host to verify the secret is being passed correctly
-          echo "Debugging VM Host:"
-          echo "${{ secrets.VM_HOST }}"
 
-          # Save the SSH key to the correct location
-          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Ensure the known_hosts file is correctly populated by the host
-          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
-          
-          # Check that the private key and known_hosts have been set up correctly
-          echo "Checking contents of ~/.ssh:"
-          ls -la ~/.ssh
-          cat ~/.ssh/id_rsa
-          cat ~/.ssh/known_hosts
-          
-          # Test SSH connection (this will fail if the SSH key or host is incorrect)
-          echo "Attempting SSH connection to the VM..."
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa user@${{ secrets.VM_HOST }} "echo 'SSH connection successful!'"
-     
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -53,6 +22,8 @@ jobs:
       - name: Deploy to VM
         run: |
           ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+            set -e  # Exit on error
+
             # Ensure web directory exists
             mkdir -p /home/griffinmuteti64/web
             cd /home/griffinmuteti64/web
@@ -72,8 +43,10 @@ jobs:
             npm run build
 
             # Install Nginx if not installed
-            sudo apt update
-            sudo apt install -y nginx
+            if ! command -v nginx &> /dev/null; then
+              sudo apt update
+              sudo apt install -y nginx
+            fi
 
             # Ensure Nginx default directory is clean and copy new build
             sudo rm -rf /var/www/html/*
