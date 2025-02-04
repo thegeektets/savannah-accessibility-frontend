@@ -20,18 +20,18 @@ jobs:
           
           # Echo the secret SSH key to verify it's being passed correctly (for debugging only)
           echo "Debugging SSH Key:"
-          echo "${{ secrets.GC_VM_SSH_KEY }}"
+          echo "${{ secrets.VM_SSH_KEY }}"
           
           # Echo the VM host to verify the secret is being passed correctly
           echo "Debugging VM Host:"
-          echo "${{ secrets.GC_VM_HOST }}"
+          echo "${{ secrets.VM_HOST }}"
 
           # Save the SSH key to the correct location
-          echo "${{ secrets.GC_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
           # Ensure the known_hosts file is correctly populated by the host
-          ssh-keyscan -H ${{ secrets.GC_VM_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
           
           # Check that the private key and known_hosts have been set up correctly
           echo "Checking contents of ~/.ssh:"
@@ -41,18 +41,18 @@ jobs:
           
           # Test SSH connection (this will fail if the SSH key or host is incorrect)
           echo "Attempting SSH connection to the VM..."
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa user@${{ secrets.GC_VM_HOST }} "echo 'SSH connection successful!'"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa user@${{ secrets.VM_HOST }} "echo 'SSH connection successful!'"
      
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GC_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.VM_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.GC_VM_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VM
         run: |
-          ssh ${{ secrets.GC_VM_USER }}@${{ secrets.GC_VM_HOST }} << 'EOF'
+          ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
             # Ensure web directory exists
             mkdir -p /home/griffinmuteti64/web
             cd /home/griffinmuteti64/web
