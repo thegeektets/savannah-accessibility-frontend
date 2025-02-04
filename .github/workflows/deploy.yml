@@ -23,25 +23,36 @@ jobs:
       - name: Deploy to VM
         run: |
           ssh ${{ secrets.GC_VM_USER }}@${{ secrets.GC_VM_HOST }} << 'EOF'
-            # Navigate to the web directory or create it if it doesn't exist
-            cd /home/griffinmuteti64/web || mkdir -p /home/griffinmuteti64/web && cd /home/griffinmuteti64/web
-            
-            # Pull latest changes from the GitHub repository
-            git pull origin master || git clone git@github.com:thegeektets/savannah-accessibility-frontend.git .
-            
-            # Install required dependencies for React app
-            npm install
+            # Ensure web directory exists
+            mkdir -p /home/griffinmuteti64/web
+            cd /home/griffinmuteti64/web
 
-            # Build the React application (this generates the build folder)
+            # Pull latest changes or clone the repo
+            if [ -d ".git" ]; then
+              git pull origin master
+            else
+              git clone git@github.com:Thegeektets/savannah-accessibility-frontend.git .
+            fi
+
+            # Update API URL in .env
+            echo "REACT_APP_API_URL=http://localhost:8000/api" > .env
+
+            # Install dependencies and build the React app
+            npm install
             npm run build
 
-            # Install Nginx if not already installed
+            # Install Nginx if not installed
             sudo apt update
             sudo apt install -y nginx
 
-            # Copy the contents of the build folder to Nginx's serving directory
+            # Ensure Nginx default directory is clean and copy new build
+            sudo rm -rf /var/www/html/*
             sudo cp -r build/* /var/www/html/
 
-            # Restart Nginx to serve the updated React app
+            # Set correct permissions
+            sudo chown -R www-data:www-data /var/www/html
+            sudo chmod -R 755 /var/www/html
+
+            # Restart Nginx
             sudo systemctl restart nginx
           EOF
