@@ -31,11 +31,11 @@ jobs:
             if [ -d ".git" ]; then
               git pull origin master
             else
-              git clone git@github.com:Thegeektets/savannah-accessibility-frontend.git .
+              git clone git@github.com:thegeektets/savannah-accessibility-frontend.git .
             fi
 
             # Update API URL in .env
-            echo "REACT_APP_API_URL=http://localhost:8000/api" > .env
+            echo "REACT_APP_API_URL=http://localhost/api" > .env
 
             # Install dependencies and build the React app
             npm install
