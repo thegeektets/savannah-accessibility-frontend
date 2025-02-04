@@ -1,0 +1,47 @@
+name: Deploy React App to Google Cloud VM
+
+on:
+  push:
+    branches:
+      - master  # Trigger deployment on push to the master branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GC_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GC_VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VM
+        run: |
+          ssh ${{ secrets.GC_VM_USER }}@${{ secrets.GC_VM_HOST }} << 'EOF'
+            # Navigate to the web directory or create it if it doesn't exist
+            cd /home/griffinmuteti64/web || mkdir -p /home/griffinmuteti64/web && cd /home/griffinmuteti64/web
+            
+            # Pull latest changes from the GitHub repository
+            git pull origin master || git clone git@github.com:griffinmuteti64/react-app.git .
+            
+            # Install required dependencies for React app
+            npm install
+
+            # Build the React application (this generates the build folder)
+            npm run build
+
+            # Install Nginx if not already installed
+            sudo apt update
+            sudo apt install -y nginx
+
+            # Copy the contents of the build folder to Nginx's serving directory
+            sudo cp -r build/* /var/www/html/
+
+            # Restart Nginx to serve the updated React app
+            sudo systemctl restart nginx
+          EOF
