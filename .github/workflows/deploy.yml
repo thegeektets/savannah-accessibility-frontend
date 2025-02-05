@@ -19,7 +19,7 @@ jobs:
           echo "${{ secrets.VM_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts || exit 1
-      
+
       - name: Deploy to VM
         run: |
           ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
@@ -57,20 +57,18 @@ jobs:
             npm install
             npm run build
 
-            # Install Nginx if not installed
-            if ! command -v nginx &> /dev/null; then
-              sudo apt update
-              sudo apt install -y nginx
-            fi
+            # Install Nginx without requiring a password
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S apt update
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S apt install -y nginx
 
             # Ensure Nginx default directory is clean and copy new build
-            sudo rm -rf /var/www/html/*
-            sudo cp -r build/* /var/www/html/
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S rm -rf /var/www/html/*
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S cp -r build/* /var/www/html/
 
             # Set correct permissions
-            sudo chown -R www-data:www-data /var/www/html
-            sudo chmod -R 755 /var/www/html
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S chown -R www-data:www-data /var/www/html
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S chmod -R 755 /var/www/html
 
             # Restart Nginx
-            sudo systemctl restart nginx
+            echo "${{ secrets.VM_PASSWORD }}" | sudo -S systemctl restart nginx
           EOF
