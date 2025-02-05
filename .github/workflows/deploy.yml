@@ -57,20 +57,20 @@ jobs:
             npm install
             npm run build
 
-            # Install Nginx without requiring root access (as a user-level process)
+            # Install Nginx if not installed
             if ! command -v nginx &> /dev/null; then
-              curl -fsSL https://nginx.org/packages/ubuntu/pool/nginx/n/nginx/nginx_1.18.0-6ubuntu14_amd64.deb -o nginx.deb
-              dpkg -i nginx.deb
+              sudo apt update
+              sudo apt install -y nginx
             fi
 
-          
             # Ensure Nginx default directory is clean and copy new build
-            rm -rf /var/www/html/*
-            cp -r build/* /var/www/html/
+            sudo rm -rf /var/www/html/*
+            sudo cp -r build/* /var/www/html/
 
-            # Set correct permissions (optional, if needed)
-            chmod -R 755 /var/www/html
+            # Set correct ownership and permissions
+            sudo chown -R www-data:www-data /var/www/html
+            sudo chmod -R 755 /var/www/html
 
-            # Start Nginx if not running (without requiring sudo)
-            nginx
+            # Restart Nginx
+            sudo systemctl restart nginx
           EOF
