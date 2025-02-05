@@ -63,10 +63,16 @@ jobs:
               dpkg -i nginx.deb
             fi
 
+            # Change ownership of the directory to current user (griffinmuteti64)
+            chown -R griffinmuteti64:griffinmuteti64 /var/www/html
+
             # Ensure Nginx default directory is clean and copy new build
+            rm -rf /var/www/html/*
             cp -r build/* /var/www/html/
 
-           
+            # Set correct permissions (optional, if needed)
+            chmod -R 755 /var/www/html
+
             # Start Nginx if not running (without requiring sudo)
             nginx
           EOF
