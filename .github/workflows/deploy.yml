@@ -64,7 +64,6 @@ jobs:
             fi
 
             # Ensure Nginx default directory is clean and copy new build
-            rm -rf /var/www/html/*
             cp -r build/* /var/www/html/
 
            
