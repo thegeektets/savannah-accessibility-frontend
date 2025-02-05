@@ -57,18 +57,20 @@ jobs:
             npm install
             npm run build
 
-            # Install Nginx without requiring a password
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S apt update
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S apt install -y nginx
+            # Install Nginx without requiring root access (as a user-level process)
+            if ! command -v nginx &> /dev/null; then
+              curl -fsSL https://nginx.org/packages/ubuntu/pool/nginx/n/nginx/nginx_1.18.0-6ubuntu14_amd64.deb -o nginx.deb
+              dpkg -i nginx.deb
+            fi
 
             # Ensure Nginx default directory is clean and copy new build
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S rm -rf /var/www/html/*
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S cp -r build/* /var/www/html/
+            rm -rf /var/www/html/*
+            cp -r build/* /var/www/html/
 
-            # Set correct permissions
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S chown -R www-data:www-data /var/www/html
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S chmod -R 755 /var/www/html
+            # Set correct permissions (optional, if needed)
+            chown -R www-data:www-data /var/www/html
+            chmod -R 755 /var/www/html
 
-            # Restart Nginx
-            echo "${{ secrets.VM_PASSWORD }}" | sudo -S systemctl restart nginx
+            # Start Nginx if not running (without requiring sudo)
+            nginx
           EOF
