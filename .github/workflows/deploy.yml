@@ -39,16 +39,17 @@ jobs:
               git checkout master
             fi
 
-            # Install or update NVM and use latest Node.js LTS
+             # Install or update NVM and use Node.js v19.1.0
             export NVM_DIR="$HOME/.nvm"
-            if [ ! -d "\$NVM_DIR" ]; then
+            if [ ! -d "$NVM_DIR" ]; then
               curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
               source ~/.bashrc
             fi
             source ~/.nvm/nvm.sh
-            nvm install --lts
-            nvm use --lts
+            nvm install 19.1.0
+            nvm use 19.1.0
             node -v  # Check Node.js version
+            
 
             # Update API URL in .env
             echo "REACT_APP_API_URL=http://${{ secrets.VM_HOST }}/api" > .env
