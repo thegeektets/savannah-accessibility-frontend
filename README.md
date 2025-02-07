@@ -16,7 +16,6 @@ This project is a React-based web application that allows users to upload HTML f
   - Missing ARIA roles on interactive elements
 - View compliance score and issue reports
 
-![Screenshot 2025-02-02 at 11 38 20 (2)](https://github.com/user-attachments/assets/e09e5687-ab86-4ba8-a62e-cd0228e4814e)
 
 
 ## Getting Started
@@ -78,6 +77,15 @@ npm run build
 
 Upload the `build/` directory to your chosen hosting provider.
 
+## Deployed Version
+
+A live test version of the application is available:
+
+**Test URL:** [http://34.46.114.33/](http://34.46.114.33/)
+
+![Screenshot 2025-02-02 at 11 38 20 (2)](https://github.com/user-attachments/assets/e09e5687-ab86-4ba8-a62e-cd0228e4814e)
+
 ## License
 
 This project is licensed under the MIT License.
+
